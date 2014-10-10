@@ -1,16 +1,46 @@
 var tasks = {
     data:[
         {id:1, text:"Planning", start_date:"28-09-2014", duration:14, progress: 0.9, open: true},
+            {id:101, text:"Team introduction", start_date:"28-09-2014", duration:4, progress: 1, parent: 1},
+            {id:102, text:"Communication channels", start_date:"02-10-2014", duration:4, progress: 1, parent: 1},
+            {id:103, text:"Initial Ideas", start_date:"06-10-2014", duration:6, progress: 1, parent: 1},
         {id:2, text:"Analysing", start_date:"05-10-2014", duration:14, progress: 0.8, open: true },
+            {id:201, text:"Research Barclays Bikes", start_date:"05-10-2014", duration:5, progress: 1, parent: 2},
+            {id:202, text:"Read TFL Documentation", start_date:"09-10-2014", duration:6, progress: 0.5, parent: 2},
+            {id:203, text:"Identify problems", start_date:"15-10-2014", duration:4, progress: 0.8, parent: 2},
         {id:3, text:"Development", start_date:"19-10-2014", duration:35, progress: 0.1, open: true},
+            {id:301, text:"Configure environment", start_date:"19-10-2014", duration:5, progress: 0.5, parent: 3},
+            {id:302, text:"Data Preparation", start_date:"22-10-2014", duration:5, progress: 0, parent: 3},
+            {id:303, text:"Database Integration", start_date:"27-10-2014", duration:7, progress: 0, parent: 3},
+            {id:304, text:"Optimisation algorithms", start_date:"03-11-2014", duration:14, progress: 0, parent: 3},
+            {id:305, text:"Data visualisation", start_date:"09-11-2014", duration:14, progress: 0, parent: 3},
         {id:4, text:"Contingency Period", start_date:"23-11-2014", duration:7, progress: 0, open: true},
-        {id:5, text:"Deployment", start_date:"30-11-2014", duration:7, progress: 0, open: true}
+            {id:401, text:"Testing", start_date:"23-11-2014", duration:4, progress: 0, open: true, parent:4},
+            {id:402, text:"Revisions", start_date:"27-11-2014", duration:3, progress: 0, open: true, parent: 4},
+        {id:5, text:"Deployment", start_date:"30-11-2014", duration:7, progress: 0, open: true},
+            {id:501, text:"Video", start_date:"30-11-2014", duration:4, progress: 0, open: true, parent: 5},
+            {id:502, text:"Presentation", start_date:"03-12-2014", duration:3, progress: 0, open: true, parent: 5}
     ],
     links:[
         {id:1, source:1, target:2, type:"0"},
+            {id:101, source:1, target:101, type:"1"},
+            {id:102, source:1, target:102, type:"1"},
+            {id:103, source:1, target:103, type:"1"},
         {id:2, source:2, target:3, type:"0"},
+            {id:201, source:2, target:201, type:"1"},
+            {id:202, source:2, target:202, type:"1"},
+            {id:203, source:2, target:203, type:"1"},
         {id:3, source:3, target:4, type:"0"},
+            {id:301, source:3, target:301, type:"1"},
+            {id:302, source:3, target:302, type:"1"},
+            {id:303, source:3, target:303, type:"1"},
+            {id:304, source:3, target:304, type:"1"},
+            {id:305, source:3, target:305, type:"1"},
         {id:4, source:4, target:5, type:"0"},
-        {id:5, source:5, target:6, type:"0"}
+            {id:401, source:4, target:401, type:"1"},
+            {id:402, source:4, target:402, type:"1"},
+        {id:5, source:5, target:6, type:"0"},
+            {id:501, source:5, target:501, type:"1"},
+            {id:502, source:5, target:502, type:"1"},
     ]
 };
