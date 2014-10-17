@@ -9,3 +9,18 @@ nav {
 }
 
 /* Boris Blue #199EDB */
+
+.back-button {
+	border: 2px solid white;
+	border-radius: 2px;
+	width: 150px;
+	padding: 5px;
+	margin: 5px 0;
+	background-color: #199EDB;
+	text-align: center;
+}
+
+.back-button a {
+	text-decoration: none;
+	color: #ffffff;
+}
