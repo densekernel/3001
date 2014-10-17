@@ -2,6 +2,7 @@ body {
 	background-color: #113B92;
 	font-family: 'Open Sans', sans-serif;
 	color: #FFFFFF;
+	margin: 0;
 }
 
 nav {
@@ -9,6 +10,7 @@ nav {
 }
 
 /* Boris Blue #199EDB */
+
 
 .back-button {
 	border: 2px solid white;
