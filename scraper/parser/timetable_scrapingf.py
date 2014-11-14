@@ -1,13 +1,15 @@
 import bs4
 import re
 import csv
+import threading
+from os import listdir
 
 
 def extractDesc(string):
     m = re.search('<br\/>(?:.*)delays(?:\ between)?\ (.*)\ (?:to|and)\ (.*)\ due(?:.*)<br\/>', string)
     if m:
         return (m.group(1), m.group(2))
-    return ''
+    return ('', '')
 
 
 def getLineName(line_row):
@@ -27,8 +29,6 @@ def getDescription(cell):
 
 
 def extract(date):
-    print ("DOIN'", date)
-
     txt = open('../raw/' + date + '.html')
     response = txt.read()
 
@@ -45,25 +45,30 @@ def extract(date):
     for line_row, time_row in zip(lines_table.findAll('tr'), timetable.findAll('tr')):
         lines += [(
                 cell.findAll('a')[0].string,
-                getDescription(cell),
+                description[0],
+                description[1],
                 24 - (i+1)*0.25,
                 getLineName(line_row),
                 date
             )
-            for i, cell in enumerate(filter(isValidCell, time_row.findAll('td'))) if notGS(cell)]
+            for i, cell in enumerate(filter(isValidCell, time_row.findAll('td')))
+            for description in [getDescription(cell)]
+            if notGS(cell)]
 
     txt.close()
     return lines
 
-def toCSV(array):
-    # for x in array:
-    #     asStr = x.__str__()
-    #     print(asStr[1:len(asStr)-1])
+def toCSV(array, name):
+    for x in array:
+        for y in x:
+            asStr = y.__str__()
+            print(asStr[1:len(asStr)-1])
 
-    with open('ur file.csv','w') as out:
-        csv_out=csv.writer(out)
-        for row in array:
-            csv_out.writerow(row)
+    # with open(name+'.csv','w') as out:
+    #     csv_out=csv.writer(out)
+    #     for row in array:
+    #         csv_out.writerow(row)
+
 
 
 def main():
@@ -74,13 +79,16 @@ def main():
     # print(extract("2014-01-01"))
     # for x in extract("../raw/2014-01-01.html")[0]:
     #     for y in x: print (y)
-    from os import listdir
-    from os.path import isfile, join
-    onlyfiles = [ f.replace('.html', '') for f in listdir('../raw') ]
+    onlyfiles = [f.replace('.html', '') for f in listdir('../raw') ]
     l = []
     for date in onlyfiles:
-        l += [extract(date)]
-    toCSV(l)
+        try:
+            l += [extract(date)]
+        except:
+            pass
+
+    toCSV(l, 'name')
+
 
 
 main()
