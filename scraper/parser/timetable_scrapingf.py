@@ -1,5 +1,6 @@
 import bs4
 import re
+import csv
 
 
 def extractDesc(string):
@@ -17,13 +18,18 @@ def isValidCell(cell):
     return cell.findAll('a') != []
 
 
+def notGS(cell):
+    return cell.findAll('a')[0].string != "GS"
+
+
 def getDescription(cell):
     return extractDesc(cell.findAll('div')[0].__str__())
 
 
-def extract(filename):
+def extract(date):
+    print ("DOIN'", date)
 
-    txt = open(filename)
+    txt = open('../raw/' + date + '.html')
     response = txt.read()
 
     soup = bs4.BeautifulSoup(response)
@@ -37,18 +43,44 @@ def extract(filename):
 
     lines = []
     for line_row, time_row in zip(lines_table.findAll('tr'), timetable.findAll('tr')):
-        lines += [(getLineName(line_row),
-            [(cell.findAll('a')[0].string, getDescription(cell))
-                for cell in time_row.findAll('td') if isValidCell(cell)])]
+        lines += [(
+                cell.findAll('a')[0].string,
+                getDescription(cell),
+                24 - (i+1)*0.25,
+                getLineName(line_row),
+                date
+            )
+            for i, cell in enumerate(filter(isValidCell, time_row.findAll('td'))) if notGS(cell)]
 
     txt.close()
     return lines
 
+def toCSV(array):
+    # for x in array:
+    #     asStr = x.__str__()
+    #     print(asStr[1:len(asStr)-1])
+
+    with open('ur file.csv','w') as out:
+        csv_out=csv.writer(out)
+        for row in array:
+            csv_out.writerow(row)
+
 
 def main():
-    for x in extract("../raw/2014-01-01.html"):
-        for y in x[1]:
-            if (y[0] == 'SD'):
-                print(y)
+    # for x in extract("../raw/2014-01-01.html"):
+    #     for y in x[1]:
+    #         if (y[0] == 'SD'):
+    #             print(y)
+    # print(extract("2014-01-01"))
+    # for x in extract("../raw/2014-01-01.html")[0]:
+    #     for y in x: print (y)
+    from os import listdir
+    from os.path import isfile, join
+    onlyfiles = [ f.replace('.html', '') for f in listdir('../raw') ]
+    l = []
+    for date in onlyfiles:
+        l += [extract(date)]
+    toCSV(l)
+
 
 main()
