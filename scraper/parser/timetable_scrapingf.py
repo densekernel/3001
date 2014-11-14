@@ -45,8 +45,8 @@ def extract(date):
     for line_row, time_row in zip(lines_table.findAll('tr'), timetable.findAll('tr')):
         lines += [(
                 cell.findAll('a')[0].string,
-                description[0],
-                description[1],
+                description[0].replace(",", "/").replace("'", ""),
+                description[1].replace(",", "/").replace("'", ""),
                 24 - (i+1)*0.25,
                 getLineName(line_row),
                 date
@@ -79,6 +79,7 @@ def main():
     # print(extract("2014-01-01"))
     # for x in extract("../raw/2014-01-01.html")[0]:
     #     for y in x: print (y)
+
     onlyfiles = [f.replace('.html', '') for f in listdir('../raw') ]
     l = []
     for date in onlyfiles:
@@ -88,6 +89,8 @@ def main():
             pass
 
     toCSV(l, 'name')
+
+    # toCSV([extract('2013-10-23')], 'aname')
 
 
 
