@@ -1,6 +1,8 @@
 import bs4
 import re
 import csv
+import threading
+from os import listdir
 
 
 def extractDesc(string):
@@ -55,16 +57,24 @@ def extract(date):
     txt.close()
     return lines
 
-def toCSV(array):
+def toCSV(array, name):
     # for x in array:
     #     asStr = x.__str__()
     #     print(asStr[1:len(asStr)-1])
 
-    with open('ur file.csv','w') as out:
+    with open(name+'.csv','w') as out:
         csv_out=csv.writer(out)
         for row in array:
             csv_out.writerow(row)
 
+def execute(array, name):
+
+        toCSV(extract(array), name)
+
+
+def chunks(l, n):
+    for i in xrange(0, len(l), n):
+        yield l[i:i+n]
 
 def main():
     # for x in extract("../raw/2014-01-01.html"):
@@ -74,13 +84,15 @@ def main():
     # print(extract("2014-01-01"))
     # for x in extract("../raw/2014-01-01.html")[0]:
     #     for y in x: print (y)
-    from os import listdir
-    from os.path import isfile, join
-    onlyfiles = [ f.replace('.html', '') for f in listdir('../raw') ]
+    onlyfiles = reversed([f.replace('.html', '') for f in listdir('../raw') ])
     l = []
     for date in onlyfiles:
-        l += [extract(date)]
-    toCSV(l)
+        try:
+            data = [extract(date)]
+            toCSV(data, date)
+        except:
+            print ("Failed for date", date)
+
 
 
 main()
