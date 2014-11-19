@@ -1,10 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
 	var bikeData = BIKEINFO;
 	var bikeIcon = L.icon({
-	    iconUrl: 'barclaysbikes.png',
-	   // iconSize:     [111, 85], // size of the icon
-	   // iconAnchor:   [111, 85], // point of the icon which will correspond to marker's locatio
-	   // popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+	    iconUrl: 'barclaysbikes.png'
 	});
 	var docks = new L.LayerGroup();
 
@@ -16,7 +13,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	 var arrayLength = bikeData.length;
 	 for (var i = 0; i < arrayLength; i++) {
 	 	var dock = bikeData[i];
-	 	L.marker([dock["latitude"], dock["longitude"]], {icon: bikeIcon}).bindPopup(dock["name"]).addTo(docks);
+	 	L.marker([dock["latitude"], dock["longitude"]], {icon: bikeIcon}).bindPopup(dock["name"] + "<br>" +
+	 		                                                                        "Cycles available: " + dock["bikesAvailable"] + "<br>" +
+	 		                                                                        "Empty docks: " +dock["emptySlots"]).addTo(docks);
 	}
 
 	var googleLayer = new L.Google('ROADMAP');
