@@ -4,12 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	    iconUrl: 'barclaysbikes.png'
 	});
 	var docks = new L.LayerGroup();
-
-
-	/* this marker isn't visible! Because the Google layer sits atop everything. See comments in https://gist.github.com/crofty/2197701.
-	"leaflet-googlemap.js" is old and buggy, it doesn't even use the latest version of leaflet,and isn't compatibel wth markers, let's not use it.
-	 I would suggest using this instead https://github.com/shramov/leaflet-plugins (which is offically linked to on the leaflet plugins page)
-	 See his google examples https://github.com/shramov/leaflet-plugins/blob/master/examples/google.html*/
 	 var arrayLength = bikeData.length;
 	 for (var i = 0; i < arrayLength; i++) {
 	 	var dock = bikeData[i];
