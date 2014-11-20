@@ -1,0 +1,238 @@
+<!-- <html>
+<head>
+  <title>Graphs</title>
+  <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="bower_components/metrics-graphics/css/metricsgraphics.css">
+  <link rel="stylesheet" type="text/css" href="static/main.css">
+  <meta http-equiv="content-type" content="text/html; charset=UTF8">
+</head>
+<body>
+
+  <div id="graph"></div>
+
+  
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="bower_components/d3/d3.js"></script>
+  <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+  <script type="text/javascript" src="bower_components/metrics-graphics/js/metricsgraphics.min.js"></script>
+
+  <script type="text/javascript">
+
+var parseDate = d3.time.format("%Y-%m-%d").parse;
+
+
+d3.json("/api/v1/test", function(error, data) {
+  console.log(error, data)
+
+  data.map(function(d) {
+    d.date = parseDate(d.date);
+    return d;
+  });
+
+
+  data_graphic({
+      title: "Downloads",
+      description: "This graphics shows Firefox GA downloads for the past six months.",
+      data: data,
+      width: 600,
+      height: 250,
+      target: '#graph',
+      x_accessor: 'date',
+      y_accessor: 'value',
+  });
+
+ 
+});
+
+  </script>
+</body>
+</html>
+ -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Graph map</title>
+    <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/metrics-graphics/css/metricsgraphics.css">
+    <link rel="stylesheet" type="text/css" href="static/main.css">
+    <meta http-equiv="content-type" content="text/html; charset=UTF8">
+    <style type="text/css">
+    path {
+        fill: transparent;
+      }
+    </style>
+  </head>
+<body>
+
+  <div id="content">
+
+  <div id="map">
+  </div>
+
+
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="bower_components/d3/d3.js"></script>
+  <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+  <script type="text/javascript" src="bower_components/metrics-graphics/js/metricsgraphics.min.js"></script>
+
+  <script type="text/javascript" src="http://cdn.jsdelivr.net/walkway/0.0.1/walkway.min.js"></script>
+
+  <script type="text/javascript">
+    
+  d3.csv('data/stations.csv', function(stations) {
+  d3.csv('data/lines2.csv', function(connections) {
+  d3.csv('data/routes.csv', function(routes) {
+
+    // Setting up dimensions
+    var w = 800,
+        h = 500,
+        minLat = 90, 
+        minLon = 180, 
+        maxLat = -90, 
+        maxLon = -180,
+        stationsById = {};
+
+    // Organising stations
+    stations.forEach(function(s) {
+      stationsById[s.id] = s;
+      s.conns = [];
+      s.display_name = (s.display_name == 'NULL') ? null : s.display_name;
+      s.rail = parseInt(s.rail,10);
+      s.totalLines = parseInt(s.total_lines,10);
+      s.latitude = parseFloat(s.latitude);
+      s.longitude = parseFloat(s.longitude);
+      minLat = Math.min(minLat, s.latitude);
+      maxLat = Math.max(maxLat, s.latitude);
+      minLon = Math.min(minLon, s.longitude);
+      maxLon = Math.max(maxLon, s.longitude);
+    });
+
+    // Locating station on map
+    var padding = 10;
+    stations.forEach(function(s) {
+      s.mapx = padding + (w-padding*2) * (s.longitude-minLon) / (maxLon-minLon);
+      s.mapy = h-padding - (h-padding*2) * (s.latitude-minLat) / (maxLat-minLat);
+    });
+    
+    // Linking lines
+    connections.forEach(function(c) {
+      c.station1 = stationsById[c.station1];
+      c.station2 = stationsById[c.station2];
+      c.station1.conns.push(c);
+      c.station2.conns.push(c);
+      c.time = parseInt(c.time,10);
+    });
+  
+      
+    // Organizing lines
+    var routesById = {};      
+    routes.forEach(function(r) {
+      routesById[r.line] = r;
+    });
+
+    /* Drawing from now on */
+
+    // Drawing map
+    var mapNode = "#map"
+    var vis = d3.select(mapNode)
+      .append("svg:svg")
+        .attr("width", w)
+        .attr("height", h);
+
+
+    // Drawing lines between stations
+    var route = vis.selectAll("line.route")
+      .data(connections)
+      .enter().append("svg:line")
+        .attr("class", "route")
+        .attr("stroke", function(d) { return '#'+routesById[d.line].colour; })
+        .attr("stroke-width", 5)
+        .attr("stroke-linecap", 'round')
+        .attr("x1", function(d) { return d.station1.mapx; })
+        .attr("y1", function(d) { return d.station1.mapy; })
+        .attr("x2", function(d) { return d.station2.mapx; })
+        .attr("y2", function(d) { return d.station2.mapy; })
+        .attr("opacity", 0)
+          .transition()
+          .duration(2500)
+              .style('opacity', 1);
+
+    // var svg2 = new Walkway({
+    //     selector: mapNode + '> svg' ,
+    //     duration: 700,
+    //     easing: 'linear'
+    //   })
+    //   .draw(function() {
+    //     console.dir('Finished diamond!');
+    //   });
+
+    // Striped stations (see official map)
+    var stripe = vis.selectAll("line.stripe")
+      .data(connections.filter(function(d) { return routesById[d.line].stripe != "NULL"; }))
+      .enter().append("svg:line")
+        .attr("class", "stripe")
+        .attr("stroke", function(d) { return '#'+routesById[d.line].stripe; })
+        .attr("stroke-width", 3)
+        .attr("stroke-linecap", 'round')
+        .attr("x1", function(d) { return d.station1.mapx; })
+        .attr("y1", function(d) { return d.station1.mapy; })
+        .attr("x2", function(d) { return d.station2.mapx; })
+        .attr("y2", function(d) { return d.station2.mapy; })
+
+    
+    var connect = vis.selectAll("circle.connect")
+       .data(stations.filter(function(d) { return d.totalLines - d.rail > 1; }))
+      
+      .enter().append("svg:circle")
+        .attr("class", "connect")
+        .attr("cx", function(d) { return d.mapx; })
+        .attr("cy", function(d) { return d.mapy; })
+        .attr("r", 2.5)
+        .style("fill", 'white')
+        .style("stroke", 'black')
+        .style("stroke-width", 0.5)
+
+    var station = vis.selectAll("circle.station")
+      .data(stations)
+      .enter().append("svg:circle")
+        .attr("class", "station")
+        .attr("id", function(d) { return 'station'+d.id })
+        .attr("cx", function(d) { return d.mapx; })
+        .attr("cy", function(d) { return d.mapy; })
+        .attr("r", 2.5)
+        .attr("title", function(d) { return d.name })
+        .style("stroke-width", 0.5)       
+        .style("stroke", 'gray')
+        .style("fill", '#ffffff')
+        .style("opacity", 0.3)
+        .on('mouseover', function(d,i) {
+          d3.selectAll('#station'+d.id)
+            .transition()
+              .duration(25)
+              .attr("r", 3)
+              .style("stroke", 'black')
+              .style("stroke-width", 0.5)
+              .style('opacity', 1);
+        })
+        .on('mouseout', function(d,i) {
+          d3.selectAll('#station'+d.id)
+            .transition()
+              .attr("r", 2.5)
+              .duration(25)
+              .style("stroke-width", 0.5)
+              .style("stroke", 'gray')
+              .style('opacity', 0.3);
+        })
+
+       // .on('click', selectStation);
+ 
+  }); // load routes      
+  }); // load lines
+  }); // load stations
+    
+</script>
+  </body>
+</html>
