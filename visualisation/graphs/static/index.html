@@ -157,17 +157,17 @@ d3.json("/api/v1/test", function(error, data) {
         .attr("y2", function(d) { return d.station2.mapy; })
         .attr("opacity", 0)
           .transition()
-          .duration(2500)
+          .duration(1500)
               .style('opacity', 1);
 
-    // var svg2 = new Walkway({
-    //     selector: mapNode + '> svg' ,
-    //     duration: 700,
-    //     easing: 'linear'
-    //   })
-    //   .draw(function() {
-    //     console.dir('Finished diamond!');
-    //   });
+    var svg2 = new Walkway({
+        selector: mapNode + '> svg' ,
+        duration: 1000,
+        easing: 'linear'
+      })
+      .draw(function() {
+        console.dir('Finished diamond!');
+      });
 
     // Striped stations (see official map)
     var stripe = vis.selectAll("line.stripe")
