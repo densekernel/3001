@@ -32,16 +32,21 @@ app.get("/api/v1/test", function (req, res) {
       d.actual_time = moment(+moment(d.date).format('x')+d.time*60*60*1000);
       return d;
     })
-    // .where({status:'MD'})
-    .group('status')
+    .where({date:'2012-12-22'})
+    .group('line')
     .map(function(x) {
       var key = Object.keys(x)[0]
       Object.keys(x).forEach(function(key) {
         x[key] = x[key].map(function(d){
           return {
-            from: d.from,
-            to:d.to,
-            time:d.time
+            from: d.from.replace('&amp;apos;', "'"),
+            to:d.to
+              .replace('&amp;apos;', "'")
+              .replace('&amp;', "&")
+              .replace('Harrow & Wealdstone', "Harrow & Wealdston")
+              .replace(/ via.*/, ""),
+            time:d.time,
+            date:d.date
           };
         });
       });
