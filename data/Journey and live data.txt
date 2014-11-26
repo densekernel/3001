@@ -1,0 +1,2 @@
+Journey data: 		https://s3-eu-west-1.amazonaws.com/navidhg/Journey+data.zip
+Live bike data:		https://s3-eu-west-1.amazonaws.com/navidhg/bikedata.txt.zip
