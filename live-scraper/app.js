@@ -29,7 +29,7 @@ app.get('/station', function(req, res) {
         return console.error('Error running query', err);
       }
       res.type('text/plain');
-      res.json(result);
+      res.json(result.rows);
     });
   });
 });
@@ -65,5 +65,40 @@ app.get('/station/:id/data', function(req, res) {
     });
   });
 });
+
+app.get('/station/:id/data/:start/:end', function(req, res) {
+  pg.connect(conString, function(err, client, done) {
+    if (err) {
+      return console.error('Could not connect to postgres.', err);
+    }
+    console.log('Querying...');
+    client.query('SELECT * FROM live WHERE stationid = $1 AND sampletime > $2 AND sampletime < $3', 
+      [req.params.id, req.params.start, req.params.end], function(err, result) {
+      if (err) {
+        return console.error('Error running query', err);
+      }
+      res.type('text/plain');
+      res.json(result.rows);
+    });
+  });
+});
+
+app.get('/station/data/:start/:end', function(req, res) {
+  pg.connect(conString, function(err, client, done) {
+    if (err) {
+      return console.error('Could not connect to postgres.', err);
+    }
+    console.log('Querying...');
+    client.query('SELECT * FROM live WHERE sampletime > $1 AND sampletime < $2', 
+      [req.params.start, req.params.end], function(err, result) {
+      if (err) {
+        return console.error('Error running query', err);
+      }
+      res.type('text/plain');
+      res.json(result.rows);
+    });
+  });
+});
+
 
 app.listen(5000);
