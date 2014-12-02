@@ -1,0 +1,5 @@
+COMP3001 API
+
+/station:           returns static information for all stations
+/station/<id>:      returns static information for bike station
+/station<id>/data:  returns available data over span of one week for station

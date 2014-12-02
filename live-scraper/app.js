@@ -1,12 +1,23 @@
 var pg = require('pg');
 var express = require('express');
 var app = express();
+var fs = require('fs');
 
 // Connect to postgres
 var conString = "postgres://postgres:bikepass@localhost/bikedata";
 var client = new pg.Client(conString);
 
 // API routes
+app.get('/', function(req, res) {
+  fs.readFile('ref.txt', function(err, content) {
+    if(err) {
+      return console.error('Could not serve text file.');
+    }
+    res.type('text/plain');
+    res.send(content);
+  });
+});
+
 app.get('/station', function(req, res) {
   pg.connect(conString, function(err, client, done) {
     if (err) {
