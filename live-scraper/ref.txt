@@ -1,5 +1,7 @@
 COMP3001 API
 
-/station:           returns static information for all stations
-/station/<id>:      returns static information for bike station
-/station<id>/data:  returns available data over span of one week for station
+/station                           returns static information for all stations
+/station/<id>                      returns static information for bike station
+/station/<id>/data                 returns available data over span of one week for station
+/station/<id>/data/<start>/<end>   returns available data over span of one week for station during time period denoted by start and end. These are UNIX times in ms
+/station/data/<start>/<end>        returns all available data for specified time period 
