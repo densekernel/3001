@@ -18,27 +18,47 @@
 <body>
 
   <div id="map"></div>
-
+  <label for=weight>Weight</label>
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.js"></script>
   <script type="text/javascript">
+
+  // Setting up the canvas
+  var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    w = Math.min(760, window.innerWidth) - margin.left - margin.right,
+    h = Math.min(500, window.innerHeight) - margin.top - margin.bottom,
+    stationsById = {},
+    stationsByName = {};
+
+  var vis = d3.select("#map").append("svg")
+    .attr("width", w + margin.left + margin.right)
+    .attr("height", h + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+  var unfoundable = [];
+    
     
   d3.csv('data/stations.csv', function(stations) {
   d3.csv('data/lines2.csv', function(connections) {
   d3.csv('data/routes.csv', function(routes) {
-
-  var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    w = Math.min(760, window.innerWidth) - margin.left - margin.right,
-    h = Math.min(500, window.innerHeight) - margin.top - margin.bottom,
-    stationsById = {};
-
+  d3.json('/api/v1/test', function(delays) {
+  d3.json('data/bikes.json', function(bikes) {
+    delays = delays[0];
   /*
   Organising data
   */
 
+  console.log(bikes)
+  bikes.forEach(function(b) {
+    b.latitude = +b.latitude;
+    b.longitude = +b.longitude;
+  })
+
   // Organising stations
   stations.forEach(function(s) {
     stationsById[s.id] = s;
+    stationsByName[s.name] = s;
     s.conns = [];
     s.display_name = (s.display_name == 'NULL') ? null : s.display_name;
     s.rail = parseInt(s.rail,10);
@@ -56,21 +76,88 @@
     c.time = parseInt(c.time,10);
   });
 
+
   // Organizing lines
   var routesById = {};      
   routes.forEach(function(r) {
     routesById[r.line] = r;
   });
 
+  // Find closed stations
+  var closed = []
+  var affectedLines = []
+
+  Object.keys(delays).forEach(function(k){
+    var line = delays[k];
+    line.map(function(d) {
+      if (d.from in stationsByName) {
+        closed.push(stationsByName[d.from])
+      } else if (d.from) {
+        console.log("Cannot find station from", d.from)
+      }
+      if (d.to in stationsByName) {
+        closed.push(stationsByName[d.to])
+        unfoundable.push(d.from)
+      } else if (d.to) {
+        console.log("Cannot find station to", d.to)
+        unfoundable.push(d.to)
+      }
+    })
+  })
+
+  function paths(from, to, line) {
+    var visited = {}
+    function mark(s) {
+      if (s.id in visited) {
+        visited[s.id]++;
+      } else {
+        visited[s.id] = 1;
+      }
+      return visited[s.id];
+    }
+    function visit(s) {
+      console.log(s)
+      if (mark(s) != 1) return;
+      if (line == routesById[s.line].name) {
+
+      } else {
+        console.log(1, line, routesById[s.line].name);
+      }
+    }
+
+    var links = connections
+      .filter(function(d) {
+        return routesById[d.line].name == line;
+      });
+
+    function findLinks (from) {
+      var stations = [];
+      for (var i=0; i < links.length; i++) {
+        if (links[i].station1.name == from || links[i].station2.name == from) {
+          stations.push(i);
+        }
+      }
+      return stations
+    }
+
+    var station1 = findLinks(from)
+    var station2 = findLinks(to)
+    //console.log("Station", station1, station2)
+
+    return links
+  }
+
+  // console.log(paths("Euston", "Victoria", "Victoria Line"))
+
   /*
   Setting up D3
   */
 
   // Find min and max long and lat  
-  var minLat = d3.min(stations, function(d) {return d.latitude});
-  var minLon = d3.min(stations, function(d) {return d.longitude});
-  var maxLat = d3.max(stations, function(d) {return d.latitude});
-  var maxLon = d3.max(stations, function(d) {return d.longitude});
+  var minLat = d3.min(bikes, function(d) {return d.latitude});
+  var minLon = d3.min(bikes, function(d) {return d.longitude});
+  var maxLat = d3.max(bikes, function(d) {return d.latitude});
+  var maxLon = d3.max(bikes, function(d) {return d.longitude});
 
   // Set up the scales
   var x = d3.scale.linear()
@@ -97,19 +184,12 @@
   var zoom = d3.behavior.zoom()
     .x(x)
     .y(y)
-    .scaleExtent([1, 10])
+    .scaleExtent([-1, 10])
     .on("zoom", zoomed);
 
   /*
   Drawing from now on
   */
-
-  // Setting up the canvas
-  var vis = d3.select("#map").append("svg")
-    .attr("width", w + margin.left + margin.right)
-    .attr("height", h + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
   // Make sure it is zoomable
   d3.select("#map svg")
@@ -126,6 +206,7 @@
       .attr("y1", function(d) { return y(d.station1.latitude); })
       .attr("x2", function(d) { return x(d.station2.longitude); })
       .attr("y2", function(d) { return y(d.station2.latitude); })
+      .style("opacity", 0.1)
 
   // Striped stations (see official map)
   var stripe = vis.selectAll("line.stripe")
@@ -148,6 +229,37 @@
       .attr("cy", function(d) { return y(d.latitude); })
       .style("fill", 'white')
       .style("stroke", 'black')
+
+
+  var available = 2;
+  var empty = 2;
+  var bikesProblems = vis.selectAll("circle.bikes")
+    .data(
+      bikes
+      // .filter(function(d) {
+      //   return (d.bikesAvailable <= available || d.emptySlots <= empty);
+      // })
+      )
+    .enter().append("svg:circle")
+      .attr("class", "bikes")
+      .attr('font-size', 7)
+      .attr("cx", function(d) { return x(+d.longitude); })
+      .attr("cy", function(d) { return y(+d.latitude); })
+      // .text( function (d) { return +d.bikesAvailable + "/" + (+d.emptySlots + +d.bikesAvailable) })
+      .style("opacity", function(d) {
+        if (d.bikesAvailable > available && d.emptySlots > empty) {
+          return 0.1
+        }
+      })
+      .style("fill", function(d) {
+        if (+d.bikesAvailable <= available) {
+          return "green"
+        }
+        if (+d.emptySlots <= empty) {
+          return "red"
+        }
+        return  "blue"
+      })
 
   // Drawing all the stations
   var station = vis.selectAll("circle.station")
@@ -182,6 +294,16 @@
             .style('opacity', 0.3);
       })
 
+  var engworks = vis.selectAll("circle.engworks")
+    .data(closed)
+    .enter().append("svg:circle")
+      .attr("class", "engworks")
+      .attr("cx", function(d) { return x(d.longitude); })
+      .attr("cy", function(d) { return y(d.latitude); })
+      .style("fill", 'red')
+      .attr("r", 10)
+      .style("stroke", 'black')
+
      // .on('click', selectStation);
 
   // Adding axis
@@ -207,6 +329,9 @@ function zoomed() {
     .style("stroke-width", 0.5 / zoom.scale())
     .attr("r", 2.5 / zoom.scale());
 
+  vis.selectAll("circle.engworks")
+    .attr("r", 10 / zoom.scale());
+
   // Rescale lines
   vis.selectAll("line.route, line.stripe")
     .attr("transform", "translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")")
@@ -218,8 +343,8 @@ function zoomed() {
     .attr("stroke-width", 4 / (zoom.scale()))
 
 }
-
- 
+  }); // load bikes
+  }); // load delays 
   }); // load routes      
   }); // load lines
   }); // load stations

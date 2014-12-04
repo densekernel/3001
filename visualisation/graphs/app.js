@@ -21,36 +21,57 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname + "/static"));
 
-app.get("/api/v1/test", function (req, res) {
+function getDelays(from, to) {
 
   var file = fs.createReadStream(__dirname+'/static/engineering.csv');
   var csv = file.pipe(CSVStream({objectMode: true, columns: true}));
 
-  __(csv)
-    .take(100)
+  var from_u = +moment(from).format('x');
+  var to_u = +moment(to).format('x');
+
+  return __(csv)
+    // .take(100)
     .map(function(d) {
       d.actual_time = moment(+moment(d.date).format('x')+d.time*60*60*1000);
       return d;
     })
-    // .where({status:'MD'})
-    .group('status')
+    .filter(function(d) {
+      var actual_time = +d.actual_time.format('x');
+      return actual_time >= from_u && actual_time < to_u;
+      debugger;
+    })
+    //.where({date:'2012-12-24'})
+    .group('line')
     .map(function(x) {
       var key = Object.keys(x)[0]
       Object.keys(x).forEach(function(key) {
         x[key] = x[key].map(function(d){
           return {
-            from: d.from,
-            to:d.to,
-            time:d.time
+            from: d.from.replace('&amp;apos;', "'"),
+            to:d.to
+              .replace('&amp;apos;', "'")
+              .replace('&amp;', "&")
+              .replace('Harrow & Wealdstone', "Harrow & Wealdston"),
+            time:d.time,
+            date:d.date
           };
         });
       });
       return x;
     })
+}
+
+app.get("/api/v1/delays", function (req, res) {
+  if (!req.query.from || !req.query.to) {
+    res.json(500, {error: "Specify to or from"});
+  }
+
+  getDelays(req.query.from, req.query.to)
     .pipe(JSONStream.stringify())
     .pipe(res);
 
 });
+
 
 
 var port = process.env.PORT || 1200;
