@@ -1,0 +1,106 @@
+<html>
+    <head>
+        <title>COMP3001 - Team 5 - Project Page</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="style.css">
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="http:////maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+	    	<div class="row">
+	        	<!-- Include nav in col-md-2 -->
+                <div class="col-md-2">
+                    <h3>Navigation</h3>
+                    <ul class="nav nav-pills nav-stacked">
+                      <li><a href="index.html">Home</a></li>
+                      
+                      <li><a href="#team">Team</a></li>
+                      <li><a href="plan/projectplan.html">Planning</a></li>
+                      <li><a href="#demo">Demo</a></li>
+                      <li><a href="#development">Development</a></li>
+                    </ul>
+                </div>
+                <!-- Include content in col-md-10 -->
+	        	<div class="col-md-10">
+	        		<h1>COMP3001</h1>
+	        		<h2>Technology Management and Professional Issues</h2>
+                    <h3>Click here to see our gantt chart</h3>
+                    <div class="back-button"><a href="plan/projectplan.html">Gantt Chart</a></div>
+
+                    <h2>Analytics Application and Data Visualsiations</h2>
+                    <ul>
+                        <li>We acquired and analysed multiple data sources</li>
+                        <li>This big data is analysed to detect network anomalies</li>
+                        <li>We built data visualisations to show bicycles availability</li>
+                        <li>We show the effect engineering works has on availability</li>
+                    </ul>
+                    <h3>Final Product</h3>
+                    <p>This image shows how TFL could use our data visualisations to map tube closures on the District Line and Northern Line.</p>
+                    <div class="back-button"><a href="http://bl.ocks.org/nicola/raw/dd4a05e46d6452a7b787/">Live example</a></div>
+                    <img src="img/case1.png">
+                    <h3 name="team">Team 5</h3>
+                    <ul>
+                        <li>Jonny Manfield</li>
+                        <li>Nicola Greco(EL)</li>
+                        <li>Marcin Cuber(STL)</li>
+                        <li>Ran Gutin</li>
+                        <li>Edward James</li>
+                        <li>Toshiyuki Nishino(NII)</li>
+                        <li>Navid Hallajian(STL)</li>
+                        <li>Mohan Dai</li>
+                        <li>Ragavan Guneshalingham</li>
+                        <li>Michael Detmold(STL)</li>
+                        <li>Richard Isaac</li>
+                        <li>Christodoulos Demetriades</li>
+                        <li>Keqin Feng</li>
+                    </ul>
+                    <p>Key: (STL) - Sub-team leader, (NII) - National Institute of Informatics</p>
+
+                    <h3 name="demo">Demo</h3>
+                    <div class="back-button"><a href="cases/case1/">Case 1 Example</a></div>
+                    <div class="back-button"><a href="cases/case2/">Case 2 Example</a></div>
+                    <div class="back-button"><a href="cases/case3/">Case 3 Example</a></div>
+
+                    <h3 name="development">Development</h3>
+                    <p>Initial visualisation</p>
+                    <img src="img/initialVis.png">
+                    <p>tubeMaps Open source Library with 100 stars!</p>
+                    <div class="back-button"><a href="https://github.com/nicola/tubemaps">See library</a></div>
+                    <img src="img/tubeMaps.png">
+                    <p>Visualisation Key</p>
+                    <p>Green = 2 bikes away from empty</p>
+                    <img src="img/greenkey.png">
+                    <p>Red = 2 bikes away from full</p>
+                    <img src="img/redkey.png">
+                    <p>Global network visualisation to show empty or full docking stations</p>
+                    <img src="img/emptyFull.png">
+                    <p>Initial Voronoi visualisation</p>
+                    <img src="img/voronoiDraft.png">
+                    <p>Voronoi diagram of London</p>
+                    <img src="img/Voronoiexample.png">
+	        	</div>
+	    	</div>
+        </div>
+
+        <!-- Google Fonts Script -->
+        	<script type="text/javascript">
+        	  WebFontConfig = {
+        	    google: { families: [ 'Open+Sans:400italic,400,300,700:latin' ] }
+        	  };
+        	  (function() {
+        	    var wf = document.createElement('script');
+        	    wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+        	      '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+        	    wf.type = 'text/javascript';
+        	    wf.async = 'true';
+        	    var s = document.getElementsByTagName('script')[0];
+        	    s.parentNode.insertBefore(wf, s);
+        	  })(); 
+        	</script>
+    </body>
+</html>
